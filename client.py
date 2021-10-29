@@ -9,8 +9,8 @@ DEFAULT_TIMEOUT = 12
 SIZE_PKG = 97
 
 
-s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-s.settimeout(DEFAULT_TIMEOUT)
+c_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+c_socket.settimeout(DEFAULT_TIMEOUT)
 
 
 data = open(FILE_NAME, "rb").read()
@@ -31,7 +31,7 @@ def finish():
 def ack():
     try:
         while True:
-            data_ack, addr = s.recvfrom(100)
+            data_ack, addr = c_socket.recvfrom(100)
             pkg_index = int.from_bytes(data_ack[-3:len(data_ack)], 'little')
             arr_ack[pkg_index] = True
     except:
@@ -43,20 +43,20 @@ def send_pkgs():
     inedx = 0
     for pkg in arr_data:
         if not arr_ack[inedx]:
-            s.sendto(pkg, (IP, PORT))
+            c_socket.sendto(pkg, (IP, PORT))
             time.sleep(0.1)
         inedx += 1
     ack()
 
 
 def start_net(amount):
-    s.sendto(amount, (IP, PORT))
+    c_socket.sendto(amount, (IP, PORT))
     try:
-        get_num, addr = s.recvfrom(3)
+        ack_amount, addr = c_socket.recvfrom(3)
         send_pkgs()
     except socket.timeout:
         start_net(amount)
 
 
 start_net((len(arr_data)).to_bytes(3, 'little'))
-s.close()
+c_socket.close()
