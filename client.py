@@ -40,7 +40,7 @@ check_arg()
 IP = sys.argv[1]
 PORT = int(sys.argv[2])
 FILE_NAME = sys.argv[3]
-c_socket.bind(('', PORT))
+
 arr_data = []
 # Check file is exist.
 try:
