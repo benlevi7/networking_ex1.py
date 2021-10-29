@@ -5,6 +5,7 @@ PORT = int(sys.argv[1])
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 s.bind(('', PORT))
 
+
 amount, addr = s.recvfrom(3)
 s.sendto(amount, addr)
 amount_int = int.from_bytes(amount, 'little')
