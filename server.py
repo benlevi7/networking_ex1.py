@@ -3,11 +3,11 @@ import sys
 
 NUM_OF_ARG = 1
 MAX_PORT = 65545
-s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+s_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 
 def off():
-    s.close()
+    s_socket.close()
     exit()
 
 
@@ -16,12 +16,12 @@ def check_arg():
     if len(sys.argv) != NUM_OF_ARG + 1:
         off()
 
-    # Check port is int type.
+    # Check port is valid int type.
     try:
         port = int(sys.argv[1])
-        if port > MAX_PORT:
+        if port > MAX_PORT or port < 0:
             off()
-        s.bind(('', port))
+        s_socket.bind(('', port))
     except:
         off()
 
@@ -33,8 +33,8 @@ def print_data():
 
 check_arg()
 # Start connection with the client - return first ack(amount).
-amount, addr = s.recvfrom(3)
-s.sendto(amount, addr)
+amount, addr = s_socket.recvfrom(3)
+s_socket.sendto(amount, addr)
 
 # Initialization.
 amount_int = int.from_bytes(amount, 'little')
@@ -48,10 +48,10 @@ while True:
         # Make sure we print only once.
         count += 1
         print_data()
-    data, addr = s.recvfrom(100)
-    # amount ack failed - send again.
+    data, addr = s_socket.recvfrom(100)
+    # Amount ack failed - send again.
     if data == amount:
-        s.sendto(amount, addr)
+        s_socket.sendto(amount, addr)
     else:
         pkg_index = int.from_bytes(data[-3:len(data)], 'little')
         # New package.
@@ -60,5 +60,5 @@ while True:
             arr_bool[pkg_index] = True
             if count <= amount_int:
                 count += 1
-        # send package ack.
-        s.sendto(data, addr)
+        # Send package ack.
+        s_socket.sendto(data, addr)
