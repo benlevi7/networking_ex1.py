@@ -2,24 +2,28 @@ import socket
 import sys
 
 NUM_OF_ARG = 1
+MAX_PORT = 65545
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+
+def off():
+    s.close()
+    exit()
 
 
 def check_arg():
     # Server port (and program name).
     if len(sys.argv) != NUM_OF_ARG + 1:
-        s.close()
-        exit()
+        off()
 
-    # Need add check len = 5 digits.
-
+    # Check port is int type.
     try:
-        # Check port is int type.
         port = int(sys.argv[1])
+        if port > MAX_PORT:
+            off()
         s.bind(('', port))
     except:
-        s.close()
-        exit()
+        off()
 
 
 def print_data():
