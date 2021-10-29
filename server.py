@@ -16,11 +16,12 @@ count = 0
 
 def print_data():
     for pkg in arr_data:
-        print(pkg.decode('utf8'))
+        print(pkg.decode('utf8'), end="")
 
 
 while True:
     if count == amount_int:
+        count += 1
         print_data()
     data, addr = s.recvfrom(100)
     if data == amount:
@@ -34,4 +35,3 @@ while True:
                 count += 1
         # that's why the client will stop at the end.
         s.sendto(data, addr)
-
