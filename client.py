@@ -2,58 +2,61 @@ import socket
 import sys
 import time
 
-ip = sys.argv[1]
-port = int(sys.argv[2])
-file_name = sys.argv[3]
+IP = sys.argv[1]
+PORT = int(sys.argv[2])
+FILE_NAME = sys.argv[3]
+DEFAULT_TIMEOUT = 12
+SIZE_PKG = 97
+
 
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-s.settimeout(12)
-
-text = open(file_name, "rb")
-data = text.read()
-arr = [data[i:i + 97] for i in range(0, len(data), 97)]
-for i in range(0, len(arr)):
-    arr[i] += i.to_bytes(3, 'little')
-
-ack_arr = [False for i in range(len(arr))]
+s.settimeout(DEFAULT_TIMEOUT)
 
 
-def start_net(num_pak):
-    s.sendto(num_pak, (ip, port))
-    try:
-        get_num, addr = s.recvfrom(3)
-        send_paks()
-    except socket.timeout:
-        start_net(num_pak)
+data = open(FILE_NAME, "rb").read()
+arr_data = [data[i:i + SIZE_PKG] for i in range(0, len(data), SIZE_PKG)]
+for i in range(0, len(arr_data)):
+    arr_data[i] += i.to_bytes(3, 'little')
+
+arr_ack = [False for i in range(len(arr_data))]
 
 
-def send_paks():
-    count = 0
-    for pak in arr:
-        if not ack_arr[count]:
-            s.sendto(pak, (ip, port))
-            time.sleep(0.1)
-        count += 1
-    ack()
+def finish():
+    for sign in arr_ack:
+        if not sign:
+            return False
+    return True
 
 
 def ack():
     try:
         while True:
             data_ack, addr = s.recvfrom(100)
-            pck_num = int.from_bytes(data_ack[-3:len(data_ack)], 'little')
-            ack_arr[pck_num] = True
+            pkg_index = int.from_bytes(data_ack[-3:len(data_ack)], 'little')
+            arr_ack[pkg_index] = True
     except:
         if not finish():
-            send_paks()
+            send_pkgs()
 
 
-def finish():
-    for b in ack_arr:
-        if not b:
-            return False
-    return True
+def send_pkgs():
+    inedx = 0
+    for pkg in arr_data:
+        if not arr_ack[inedx]:
+            s.sendto(pkg, (IP, PORT))
+            time.sleep(0.1)
+        inedx += 1
+    ack()
 
 
-start_net((len(arr)).to_bytes(3, 'little'))
+def start_net(amount):
+    s.sendto(amount, (IP, PORT))
+    try:
+        get_num, addr = s.recvfrom(3)
+        send_pkgs()
+    except socket.timeout:
+        start_net(amount)
+
+
+start_net((len(arr_data)).to_bytes(3, 'little'))
 s.close()
