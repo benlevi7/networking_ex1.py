@@ -20,6 +20,7 @@ s.bind(('', PORT))
 def recv_pkg(pkg):
     pkg_num = int.from_bytes(pkg[-3:len(pkg)], 'little')
     s.sendto(pkg, client)
+    # *** problem index out of range (from first iteration) ***
     if not bool_arr[pkg_num]:
         print("Got package: " + str(pkg_num))
         data_arr[pkg_num] = data
