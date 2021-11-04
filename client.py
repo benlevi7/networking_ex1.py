@@ -23,7 +23,7 @@ def check_arg():
         off()
     try:
         # Check valid IP address.
-        arr = sys.argv[1].split('.')
+        arr = sys.argv[2].split('.')
         # IPv4
         if len(arr) != 4:
             off()
@@ -32,15 +32,15 @@ def check_arg():
                 off()
 
         # Check port is valid int type.
-        if int(sys.argv[2]) > MAX_PORT or int(sys.argv[2]) < 0:
+        if int(sys.argv[1]) > MAX_PORT or int(sys.argv[1]) < 0:
             off()
     except:
         off()
 
 
 check_arg()
-IP = sys.argv[1]
-PORT = int(sys.argv[2])
+PORT = int(sys.argv[1])
+IP = sys.argv[2]
 FILE_NAME = sys.argv[3]
 
 arr_data = []
